@@ -1,24 +1,9 @@
 
-"""
-
-я уверен - никто не будет смотреть в этот коммит
-но если вы это читаете, напишите в Issues репозитория:
-
-"код не работает - технические шоколадки"
-
-и я куплю вам шоколадку
-просто так
-
-"""
-
-import requests
+from requests import get
 from bs4 import BeautifulSoup
 import json
 
 url = 'https://books.toscrape.com/'
-
-request = requests.get(url=url)
-
 ratings = {
     'One': 1,
     'Two': 2,
@@ -27,21 +12,40 @@ ratings = {
     'Five': 5
 }
 
+user_request = {
+    # 'title': input('Book title to find: '),
+    'price': (float(input('Min book price, £: ')), float(input('Max book price, £: '))),
+    'rating': int(input('Min book rating, 0-5: '))
+}
+
+index_counter = 0
+books_to_dump = {}
+def filter_book(book):
+    global index_counter
+    with open('books_file.json', 'w') as file:
+        if book['rating'] >= user_request['rating']:
+            if user_request['price'][0] <= book['price'] <= user_request['price'][1]:
+                books_to_dump[index_counter] = book
+                index_counter += 1
+        print(books_to_dump)
+        json.dump(books_to_dump, file, indent=4)
+
+
+request = get(url=url)
 if request.ok:
     soup = BeautifulSoup(request.text, 'lxml')
     soup_books = soup.find_all('article', class_='product_pod')
 
-    index_counter = 0
-    books = {}
+    
     for soup_book in soup_books:
-        books[index_counter] = {
+        book = {
             'title': soup_book.h3.a['title'],
             'price': float(soup_book.find('p', class_='price_color').text.replace('Â£', '')),
             'rating': ratings[str(soup_book.p['class'][1])]
         }
-        index_counter += 1
-    with open('books_file.json', 'w') as file:
-        json.dump(books, file, indent=4)
+        filter_book(book=book)
+
+    
 
 else:
     print('something went wrong')
