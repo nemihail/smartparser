@@ -69,7 +69,7 @@ cat_ask.current(0)
 cat_ask.place(relx=0.5, rely=0.3, anchor='center')
 
 selected = None
-def print_selected(option):
+def write_selected(option):
     """this func is completely костыль"""
     global selected
     selected = categories[option]
@@ -77,7 +77,7 @@ def print_selected(option):
 
 
 select_button = tk.Button(root, text='Select', font=('Arial', 12),
-                          command=lambda: print_selected(cat_ask.get()))
+                          command=write_selected(cat_ask.get()))
 select_button.place(relx=0.5, rely=0.7, anchor='center')
 
 root.mainloop()
